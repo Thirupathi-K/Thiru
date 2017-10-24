@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<springProperty name="LOG_PATH" source="logging.path"/>
+	<springProperty name="LOG_FILE" source="logging.file"/>
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{MM/dd HH:mm:ss:SSS} %-5level[%thread] %logger %X{UUID}- %msg%n</pattern>
+        </encoder>
+	</appender>
+	
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/${LOG_FILE}.log</file>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz
+                        </fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+	</appender>
+	
+	<appender name="SQLFILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/${LOG_FILE}-sql.log</file>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}-sql.%d{yyyy-MM-dd}.%i.log.gz
+                        </fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+	</appender>
+
+	<appender name="FILE-ERROR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/${LOG_FILE}-error.log</file>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}-error.%d{yyyy-MM-dd}.%i.log.gz
+                        </fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+	</appender>
+
+    <appender name="LOGGER"
+          class="ch.qos.logback.core.rolling.RollingFileAppender">
+          <file>${LOG_PATH}/${LOG_FILE}-logger.log</file>
+          <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                 <Pattern>%msg%n</Pattern>
+          </encoder>
+          <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                 <!-- rollover daily -->
+                 <fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}-logger.%d{yyyy-MM-dd}.%i.log.gz
+                    </fileNamePattern>
+                 <timeBasedFileNamingAndTriggeringPolicy
+                       class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                       <maxFileSize>100MB</maxFileSize>
+                 </timeBasedFileNamingAndTriggeringPolicy>
+                 <maxHistory>2</maxHistory>
+          </rollingPolicy>
+    </appender>       
+    	
+	<!-- Send logs to both console and file  -->
+	<root level="INFO"
+		additivity="false">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+
+	<logger name="org" level="ERROR"
+		additivity="false">
+		<appender-ref ref="FILE-ERROR" />
+		<appender-ref ref="STDOUT" />
+	</logger>	
+	
+	<logger name="org" level="INFO"
+		additivity="false">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+		<logger name="com" level="ERROR"
+		additivity="false">
+		<appender-ref ref="FILE-ERROR" />
+		<appender-ref ref="STDOUT" />
+	</logger>	
+	
+	<logger name="com" level="INFO"
+		additivity="false">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="org.apache.kafka.clients" level="OFF"/>
+	<logger name="com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver" level="OFF"/>
+
+	<logger name="com.scb.core.common.logger.SCBAsyncLoggerService" level="INFO" additivity="false">
+		<appender-ref ref="LOGGER" />
+		<appender-ref ref="STDOUT" />
+	</logger>      
+  
+  	<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="INFO" additivity="false">
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+  	
+  	<logger name="org.hibernate.SQL" level="INFO" additivity="false">
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+  	</logger>	
+
+	<!-- Enable Verbose Hibernate logger -->
+  	<logger name="org.springframework.transaction" level="INFO" additivity="false"> 
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="org.hibernate.loader.Loader" level="INFO" additivity="false"> 
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="org.hibernate.event.internal" level="INFO" additivity="false"> 
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="org.hibernate.engine.transaction.spi.AbstractTransactionImpl" level="INFO" additivity="false"> 
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<!-- Enable Verbose Hibernate logger -->
+
+<!-- 	<logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+		<appender-ref ref="SQLFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger> -->
+			
+	<root level="ERROR" additivity="false">
+		<appender-ref ref="FILE-ERROR" />
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
